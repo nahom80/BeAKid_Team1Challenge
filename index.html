@@ -21,7 +21,7 @@
             background-color: var(--primary-bg);
             color: var(--text-light);
             display: flex;
-            min-height: 100vh;
+            min-height: 10vh;
             overflow-x: hidden;
         }
         /* Custom scrollbar for better look in light mode */
@@ -29,34 +29,87 @@
         ::-webkit-scrollbar-track { background: var(--primary-bg); }
         ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+        
+        /* * New style for inactive navigation items: 
+         * Hide the Lucide icon SVG on hover, and show a red 'X' instead
+         */
+        .nav-inactive:hover {
+            position: relative;
+            /* Remove the default hover color change on the Lucide icon element itself */
+            color: var(--text-muted) !important; 
+        }
+
+        .nav-inactive:hover i[data-lucide] {
+            display: none; /* Hide the original icon */
+        }
+
+        .nav-inactive:hover::after {
+            content: "✕"; /* Red X Unicode character */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #EF4444; /* Tailwind red-500 */
+            font-size: 1.5rem; /* Larger for visibility */
+            font-weight: bold;
+            transition: all 0.15s ease-in-out;
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- Left Sidebar Navigation -->
+    <!-- Left Sidebar Navigation (Updated Structure) -->
     <div id="sidebar" class="fixed left-0 top-0 h-full w-16 bg-white flex flex-col justify-between items-center py-4 z-20 shadow-xl border-r border-gray-300">
-        <!-- Top Icons -->
-        <div class="flex flex-col items-center space-y-6">
-            <div class="p-2 text-blue-500">
-                <i data-lucide="zap" class="w-6 h-6"></i>
+        
+        <!-- Top Section: Logo/Brand and Core Nav (Now includes Campaigns) -->
+        <div>
+            <!-- Logo/Brand Icon -->
+            <div class="flex flex-col items-center space-y-6">
+                <div class="p-2 text-blue-500">
+                    <i data-lucide="zap" class="w-6 h-6"></i>
+                </div>
+                <div class="h-0.5 w-10 bg-gray-300"></div>
             </div>
-            <div class="h-0.5 w-10 bg-gray-300"></div>
 
-            <div class="flex flex-col items-center space-y-4">
-                <!-- Inferred Nav Links -->
-                <i data-lucide="star" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
-                <i data-lucide="search" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
-                <i data-lucide="mail" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
-                <i data-lucide="send" class="w-6 h-6 text-blue-500 cursor-pointer p-1 rounded-lg bg-gray-100 shadow-md"></i> <!-- Campaigns (Active) -->
-                <i data-lucide="instagram" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
-                <i data-lucide="line-chart" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
-                <i data-lucide="zap" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
-                <i data-lucide="settings" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+            <!-- Core Nav Links -->
+            <div class="flex flex-col items-center space-y-4 mt-6">
+                <!-- Inbox/Mailbox - INACTIVE -->
+                <div class="nav-inactive w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer p-1" 
+                     onclick="notifyInactive('Inbox')" title="Inbox">
+                    <i data-lucide="mail" class="w-6 h-6"></i>
+                </div>
+                <!-- Leads/Contacts - INACTIVE -->
+                <div class="nav-inactive w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer p-1" 
+                     onclick="notifyInactive('Leads')" title="Leads">
+                    <i data-lucide="users" class="w-6 h-6"></i>
+                </div>
+                <!-- Analytics/Reporting - INACTIVE -->
+                <div class="nav-inactive w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer p-1" 
+                     onclick="notifyInactive('Analytics')" title="Analytics">
+                    <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                </div>
+                <!-- Global Settings - INACTIVE -->
+                <div class="nav-inactive w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer p-1" 
+                     onclick="notifyInactive('Settings')" title="Settings">
+                    <i data-lucide="settings" class="w-6 h-6"></i>
+                </div>
+                
+                <!-- Campaigns (Active Link - No 'nav-inactive' class, no hover effect) -->
+                <i data-lucide="send" class="w-6 h-6 text-blue-500 cursor-pointer p-1 rounded-lg bg-gray-100 shadow-md mt-2" title="Campaigns (Current View)"></i>
             </div>
         </div>
-        <!-- Bottom Icon -->
+        
+        <!-- Bottom Section: User Profile Only -->
         <div class="flex flex-col items-center space-y-4">
-            <i data-lucide="user" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+            <!-- Separator -->
+            <div class="h-0.5 w-10 bg-gray-300"></div>
+
+            <!-- User Profile - INACTIVE -->
+            <div class="nav-inactive w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer p-1" 
+                 onclick="notifyInactive('User Profile')" title="Profile">
+                <i data-lucide="user" class="w-6 h-6"></i>
+            </div>
             <span id="displayUserId" class="text-[0.6rem] text-gray-500 break-all w-full text-center mt-1 p-1">Local Mode</span>
         </div>
     </div>
@@ -86,11 +139,31 @@
                     </button>
                     
                     <!-- Organization Dropdown -->
-                    <div class="relative inline-block text-left">
-                        <button class="inline-flex justify-center items-center rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 transition duration-150">
-                            My Organization
+                    <div class="relative inline-block text-left" id="orgDropdownContainer">
+                        <button id="orgDropdownToggle" class="inline-flex justify-center items-center rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 transition duration-150">
+                            <span id="currentOrgName">Organization 01</span>
                             <i data-lucide="chevron-down" class="w-4 h-4 ml-2 -mr-1"></i>
                         </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="orgDropdownMenu" class="absolute right-0 z-30 mt-2 w-56 origin-top-right rounded-xl bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none hidden" 
+                             role="menu" aria-orientation="vertical" tabindex="-1">
+                            <div class="py-1" role="none">
+                                <!-- Organizations will be dynamically rendered here by JS -->
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" 
+                                   onclick="switchOrganization('org1'); document.getElementById('orgDropdownMenu').classList.add('hidden'); event.preventDefault();" role="menuitem" tabindex="-1">
+                                    Organization 01
+                                </a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900" 
+                                   onclick="switchOrganization('org2'); document.getElementById('orgDropdownMenu').classList.add('hidden'); event.preventDefault();" role="menuitem" tabindex="-1">
+                                    Organization 02
+                                </a>
+                                <div class="h-px bg-gray-200 my-1"></div>
+                                <a href="#" class="block px-4 py-2 text-sm text-blue-600 hover:bg-gray-100" onclick="showNotification('Simulated: New organization setup started.'); event.preventDefault();" role="menuitem" tabindex="-1">
+                                    <i data-lucide="plus" class="w-4 h-4 mr-2 inline-block"></i> Add New Organization
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -303,13 +376,27 @@
 <script>
 
     // --- GLOBAL APP STATE ---
-    let ALL_CAMPAIGNS = [
-        { id: 'c1', name: 'Q3 Lead Nurturing Sequence', status: 'Active', progress: 85, sent: 12400, click: 3500, replied: 890, opportunities: 25, date: new Date('2023-09-01') },
-        { id: 'c2', name: 'Welcome Aboard Series V2', status: 'Completed', progress: 100, sent: 8000, click: 2100, replied: 520, opportunities: 18, date: new Date('2023-10-15') },
-        { id: 'c3', name: 'Abandoned Cart Follow-up (Pilot)', status: 'Draft', progress: 0, sent: 0, click: 0, replied: 0, opportunities: 0, date: new Date('2024-03-10') },
-        { id: 'c4', name: 'Winter Holidays Retargeting', status: 'Paused', progress: 45, sent: 5100, click: 980, replied: 150, opportunities: 7, date: new Date('2023-11-20') },
-        { id: 'c5', name: 'Beta Feature Launch', status: 'Active', progress: 62, sent: 9400, click: 4200, replied: 1100, opportunities: 31, date: new Date('2024-01-05') },
-    ];
+    
+    const ORGANIZATIONS = {
+        'org1': 'Organization 01',
+        'org2': 'Organization 02'
+    };
+
+    let ALL_CAMPAIGNS_DATA = {
+        'org1': [
+            { id: 'c1', name: 'Q3 Lead Nurturing Sequence', status: 'Active', progress: 85, sent: 12400, click: 3500, replied: 890, opportunities: 25, date: new Date('2023-09-01') },
+            { id: 'c2', name: 'Welcome Aboard Series V2', status: 'Completed', progress: 100, sent: 8000, click: 2100, replied: 520, opportunities: 18, date: new Date('2023-10-15') },
+            { id: 'c3', name: 'Abandoned Cart Follow-up (Pilot)', status: 'Draft', progress: 0, sent: 0, click: 0, replied: 0, opportunities: 0, date: new Date('2024-03-10') },
+        ],
+        'org2': [
+            { id: 'd1', name: 'New Client Onboarding Flow', status: 'Active', progress: 95, sent: 5000, click: 1200, replied: 400, opportunities: 15, date: new Date('2024-05-01') },
+            { id: 'd2', name: 'Monthly Newsletter Campaign', status: 'Paused', progress: 50, sent: 15000, click: 3000, replied: 100, opportunities: 3, date: new Date('2024-04-15') },
+            { id: 'd3', name: 'Product Launch 2025 Teaser', status: 'Draft', progress: 0, sent: 0, click: 0, replied: 0, opportunities: 0, date: new Date('2025-01-01') },
+            { id: 'd4', name: 'Retention Offer for Q1', status: 'Active', progress: 75, sent: 7000, click: 1500, replied: 600, opportunities: 20, date: new Date('2024-02-20') },
+        ]
+    };
+    
+    let currentOrgId = 'org1'; // Default organization
     let selectedCampaignIds = new Set();
     let currentView = 'dashboard';
     let selectedCampaign = null; 
@@ -328,6 +415,55 @@
     const tabContent = document.getElementById('tabContent');
 
 
+    // Helper to get the currently viewed campaigns
+    const getCurrentCampaigns = () => ALL_CAMPAIGNS_DATA[currentOrgId] || [];
+    
+    /** Shows a notification that the feature is not active in the demo */
+    const notifyInactive = (featureName) => {
+        showNotification(`The ${featureName} feature is inactive in this demo. Please use the Campaigns view.`);
+    };
+
+    // --- ORGANIZATION SWITCHING LOGIC ---
+    
+    /** Switches the active organization, clears selection, and updates the view. */
+    const switchOrganization = (newOrgId) => {
+        if (currentOrgId === newOrgId) return;
+
+        currentOrgId = newOrgId;
+        selectedCampaignIds.clear(); // Clear selection when changing org
+        
+        // Update UI
+        document.getElementById('currentOrgName').textContent = ORGANIZATIONS[newOrgId];
+        
+        // Rerender dashboard
+        switchView('dashboard'); // This calls filterCampaigns()
+        showNotification(`Switched to ${ORGANIZATIONS[newOrgId]}`);
+    };
+    
+    /** Sets up the click listener for the organization dropdown. */
+    const setupOrgDropdown = () => {
+        const toggle = document.getElementById('orgDropdownToggle');
+        const menu = document.getElementById('orgDropdownMenu');
+        const container = document.getElementById('orgDropdownContainer');
+        
+        // Toggle visibility
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.toggle('hidden');
+        });
+
+        // Hide on click outside
+        document.addEventListener('click', (e) => {
+            if (!container.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+        
+        // Initial name display
+        document.getElementById('currentOrgName').textContent = ORGANIZATIONS[currentOrgId];
+    };
+
+
     // --- VIEW SWITCHING LOGIC ---
     
     /** Switches the application's current view between 'dashboard' and 'detail' */
@@ -341,11 +477,12 @@
         if (viewName === 'dashboard') {
             selectedCampaign = null;
             dashboardView.classList.remove('hidden');
-            filterCampaigns(); // Ensure dashboard is updated
+            filterCampaigns(); // Ensure dashboard is updated for the current org
         } else if (viewName === 'detail' && campaignId) {
-            selectedCampaign = ALL_CAMPAIGNS.find(c => c.id === campaignId);
+            // Find campaign in the current organization's data
+            selectedCampaign = getCurrentCampaigns().find(c => c.id === campaignId);
             if (!selectedCampaign) {
-                showNotification("Error: Campaign not found.");
+                showNotification("Error: Campaign not found in current organization.");
                 switchView('dashboard');
                 return;
             }
@@ -398,7 +535,7 @@
 
         switch (tabName) {
             case 'Analytics':
-                // Based on Instantly_analytics.png
+                // Content truncated for brevity (no changes to this part)
                 contentHTML = `
                     <div class="p-4 md:p-6 bg-white rounded-xl shadow-lg border border-gray-200">
                         <div class="flex flex-wrap items-center space-x-6 text-sm font-medium mb-6">
@@ -440,7 +577,7 @@
                 `;
                 break;
             case 'Leads':
-                // Based on Instantly_leads.png
+                // Content truncated for brevity
                 contentHTML = `
                     <div class="p-8 bg-white rounded-xl shadow-lg border border-gray-200 text-center">
                         <div class="max-w-xs mx-auto mb-8">
@@ -454,7 +591,7 @@
                 `;
                 break;
             case 'Sequences':
-                // Based on Instantly_sequences.png
+                // Content truncated for brevity
                 contentHTML = `
                     <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
                         <!-- Left Panel: Steps -->
@@ -501,7 +638,7 @@
                 `;
                 break;
             case 'Schedule':
-                // Based on schedule.png
+                // Content truncated for brevity
                 contentHTML = `
                     <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
                         <!-- Left Panel: Schedule Settings -->
@@ -565,7 +702,7 @@
                 `;
                 break;
             case 'Options':
-                // Based on options.jpg
+                // Content truncated for brevity
                 contentHTML = `
                     <div class="bg-white rounded-xl p-6 space-y-6 shadow-lg border border-gray-200">
                         ${renderOptionBlock('Accounts to use', 'Select one or more accounts to send emails from', `
@@ -836,7 +973,10 @@
         const statusVal = document.getElementById('statusFilter').value;
         const sortVal = document.getElementById('sortOrder').value;
 
-        let filtered = ALL_CAMPAIGNS.filter(c => {
+        // Use campaigns from the current organization
+        let campaignsToFilter = getCurrentCampaigns();
+
+        let filtered = campaignsToFilter.filter(c => {
             const nameMatch = c.name.toLowerCase().includes(searchVal);
             const statusMatch = !statusVal || c.status === statusVal;
             return nameMatch && statusMatch;
@@ -862,8 +1002,8 @@
         const isChecked = document.getElementById('selectAllCheckbox').checked;
         const currentCampaigns = filterAndSortCampaigns(); 
         
-        // Deselect all current campaigns first
-        currentCampaigns.forEach(c => selectedCampaignIds.delete(c.id));
+        // Deselect all items from the current organization first
+        getCurrentCampaigns().forEach(c => selectedCampaignIds.delete(c.id));
 
         if (isChecked) {
             // Select all currently filtered campaigns
@@ -875,15 +1015,19 @@
     };
 
     const updateSelectAllCheckbox = () => {
-        const totalRendered = filterAndSortCampaigns().length;
-        const selectedCount = selectedCampaignIds.size;
+        const filteredCampaigns = filterAndSortCampaigns();
+        const totalRendered = filteredCampaigns.length;
+        
+        // Count how many of the currently visible (filtered) campaigns are selected
+        const selectedVisibleCount = filteredCampaigns.filter(c => selectedCampaignIds.has(c.id)).length;
+        
         const selectAllCheckbox = document.getElementById('selectAllCheckbox');
         
         if (!selectAllCheckbox) return;
 
-        const isAllSelected = totalRendered > 0 && selectedCampaignIds.size === totalRendered;
+        const isAllSelected = totalRendered > 0 && selectedVisibleCount === totalRendered;
         
-        if (selectedCount === 0) {
+        if (selectedVisibleCount === 0) {
             selectAllCheckbox.checked = false;
             selectAllCheckbox.indeterminate = false;
         } else if (isAllSelected) {
@@ -902,7 +1046,7 @@
         
         if (campaignsToRender.length === 0) {
             emptyStateElement.classList.remove('hidden');
-            if (ALL_CAMPAIGNS.length === 0) {
+            if (getCurrentCampaigns().length === 0) {
                 selectedCampaignIds.clear();
                 toggleActionBar();
             }
@@ -951,13 +1095,13 @@
     
     function deleteSelectedCampaigns() {
         const idsToDelete = Array.from(selectedCampaignIds);
-
-        // Filter the main array to keep only campaigns whose IDs are NOT in the set
-        ALL_CAMPAIGNS = ALL_CAMPAIGNS.filter(c => !selectedCampaignIds.has(c.id));
+        
+        // Filter the current organization's array to keep only campaigns whose IDs are NOT in the set
+        ALL_CAMPAIGNS_DATA[currentOrgId] = getCurrentCampaigns().filter(c => !selectedCampaignIds.has(c.id));
         
         selectedCampaignIds.clear(); // Clear selection
         hideModal('deleteConfirmationModal');
-        showNotification(`Successfully deleted ${idsToDelete.length} campaign(s).`);
+        showNotification(`Successfully deleted ${idsToDelete.length} campaign(s) from ${ORGANIZATIONS[currentOrgId]}.`);
         
         filterCampaigns(); // Re-render the list
     }
@@ -971,9 +1115,16 @@
             return;
         }
         
-        // Generate a simple, unique ID for in-memory tracking
-        const maxId = Math.max(0, ...ALL_CAMPAIGNS.map(c => parseInt(c.id.substring(1), 10)));
-        const newId = 'c' + (maxId + 1);
+        const currentCampaigns = getCurrentCampaigns();
+        
+        // Generate a simple, unique ID based on the current organization's existing IDs
+        const maxId = currentCampaigns.length > 0 ? 
+            Math.max(0, ...currentCampaigns.map(c => parseInt(c.id.substring(1), 10))) : 
+            0;
+            
+        // Use 'c' for org1 and 'd' for org2, or a more robust unique ID later
+        const prefix = currentOrgId === 'org1' ? 'c' : 'd';
+        const newId = prefix + (maxId + 1);
 
         const newCampaign = { 
             id: newId, 
@@ -988,9 +1139,9 @@
             date: new Date() 
         };
 
-        ALL_CAMPAIGNS.push(newCampaign);
+        currentCampaigns.push(newCampaign); // Add to the current organization's array
 
-        showNotification(`New Campaign '${name}' created in memory!`); 
+        showNotification(`New Campaign '${name}' created in ${ORGANIZATIONS[currentOrgId]}!`); 
         hideModal('addCampaignModal');
         
         filterCampaigns(); // Re-render the list to show the new item
@@ -1039,6 +1190,7 @@
 
     // Initialize on load
     window.onload = () => {
+        setupOrgDropdown();
         lucide.createIcons();
         switchView('dashboard'); // Initial render
     };
