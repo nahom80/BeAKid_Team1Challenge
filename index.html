@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaigns Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        :root {
+            --primary-bg: #F3F4F6; /* Main Background: Tailwind gray-100 equivalent */
+            --secondary-bg: #FFFFFF; /* Surface/Card Background: White */
+            --text-light: #1F2937; /* Main Text Color: Tailwind gray-800 */
+            --text-muted: #6B7280; /* Secondary/Muted Text Color: Tailwind gray-500 */
+            --accent-blue: #3B82F6; /* Primary Accent Color: Tailwind blue-500 */
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-light);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        /* Custom scrollbar for better look in light mode */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--primary-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+    </style>
+</head>
+<body>
+
+    <!-- Left Sidebar Navigation -->
+    <div id="sidebar" class="fixed left-0 top-0 h-full w-16 bg-white flex flex-col justify-between items-center py-4 z-20 shadow-xl border-r border-gray-300">
+        <!-- Top Icons -->
+        <div class="flex flex-col items-center space-y-6">
+            <div class="p-2 text-blue-500">
+                <i data-lucide="zap" class="w-6 h-6"></i>
+            </div>
+            <div class="h-0.5 w-10 bg-gray-300"></div>
+
+            <div class="flex flex-col items-center space-y-4">
+                <!-- Inferred Nav Links -->
+                <i data-lucide="star" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+                <i data-lucide="search" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+                <i data-lucide="mail" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+                <i data-lucide="send" class="w-6 h-6 text-blue-500 cursor-pointer p-1 rounded-lg bg-gray-100 shadow-md"></i> <!-- Campaigns (Active) -->
+                <i data-lucide="instagram" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+                <i data-lucide="line-chart" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+                <i data-lucide="zap" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+                <i data-lucide="settings" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+            </div>
+        </div>
+        <!-- Bottom Icon -->
+        <div class="flex flex-col items-center space-y-4">
+            <i data-lucide="user" class="w-6 h-6 text-gray-600 hover:text-blue-500 cursor-pointer"></i>
+            <span id="displayUserId" class="text-[0.6rem] text-gray-500 break-all w-full text-center mt-1 p-1">Local Mode</span>
+        </div>
+    </div>
+
+    <!-- Main Content Area Container -->
+    <div class="flex-1 ml-16">
+        
+        <!-- ============================================= -->
+        <!-- 1. DASHBOARD VIEW (Campaigns List) -->
+        <!-- ============================================= -->
+        <div id="dashboardView" class="p-4 md:p-6 lg:p-8">
+
+            <!-- Top Header Bar (Dashboard Specific) -->
+            <header class="flex justify-between items-center pb-6 border-b border-gray-200 mb-6">
+                <h1 class="text-3xl font-semibold text-gray-900">Kampaigns</h1>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Coin/Points Display -->
+                    <div class="flex items-center text-sm font-medium bg-white px-3 py-1.5 rounded-full border border-gray-300">
+                        <i data-lucide="coin" class="w-4 h-4 text-yellow-500 mr-2 fill-yellow-500 stroke-none"></i>
+                        <span>100</span>
+                    </div>
+                    
+                    <!-- Fullscreen Button (Simulated) -->
+                    <button class="p-2 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition duration-150" onclick="showNotification('This application is fully responsive and currently maximized within the preview area.')">
+                        <i data-lucide="maximize" class="w-5 h-5"></i>
+                    </button>
+                    
+                    <!-- Organization Dropdown -->
+                    <div class="relative inline-block text-left">
+                        <button class="inline-flex justify-center items-center rounded-lg bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 transition duration-150">
+                            My Organization
+                            <i data-lucide="chevron-down" class="w-4 h-4 ml-2 -mr-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Search and Action Bar (Restructured) -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
+                <!-- Search Input (Left Side) -->
+                <div class="relative w-full md:w-80">
+                    <i data-lucide="search" class="w-4 h-4 text-gray-600 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                    <input type="text" id="searchInput" onkeyup="filterCampaigns()" placeholder="Search..." class="w-full bg-white text-gray-900 rounded-xl py-3 pl-10 pr-4 border border-gray-300 focus:border-blue-500 focus:ring-blue-500 focus:outline-none transition">
+                </div>
+
+                <!-- Right Side: Permanent Filters + Swapping Action Buttons -->
+                <div class="flex items-center space-x-3">
+                    
+                    <!-- Permanent Filters/Sort (Visible always) -->
+                    <div id="filterSortContainer" class="flex items-center space-x-3">
+                        
+                        <!-- All Statuses Dropdown (Filter) -->
+                        <div class="relative inline-block">
+                            <select id="statusFilter" onchange="filterCampaigns()" class="appearance-none bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full py-3 pl-4 pr-10 cursor-pointer transition hover:bg-gray-200">
+                                <option value="">All statuses</option>
+                                <option value="Draft">Draft</option>
+                                <option value="Active">Active</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Paused">Paused</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+
+                        <!-- Newest First Dropdown (Sort) -->
+                        <div class="relative inline-block">
+                            <select id="sortOrder" onchange="filterCampaigns()" class="appearance-none bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full py-3 pl-4 pr-10 cursor-pointer transition hover:bg-gray-200">
+                                <option value="newest">Newest first</option>
+                                <option value="oldest">Oldest first</option>
+                                <option value="name">Name (A-Z)</option>
+                                <option value="progress">Progress</option>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <!-- 1. Static Action Buttons (Visible when 0 selected) -->
+                    <div id="staticActionButtons" class="flex items-center space-x-3">
+                        <!-- Download/Export Button -->
+                        <button class="p-3 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition duration-150" onclick="showNotification('Exporting data...')">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
+
+                        <!-- Add New Button -->
+                        <button class="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-3 rounded-xl transition duration-200 shadow-blue-500/50 shadow-md" onclick="showModal('addCampaignModal')">
+                            <i data-lucide="plus" class="w-5 h-5 mr-2"></i>
+                            Add New
+                        </button>
+                    </div>
+
+                    <!-- 2. Dynamic Selection Action Bar (Visible when >0 selected) -->
+                    <div id="selectionActionBar" class="hidden items-center space-x-3 transition-opacity duration-300">
+                        <span id="selectedCount" class="text-sm font-medium text-gray-600 mr-2">0 selected</span>
+
+                        <!-- Archive Button (Inferred) -->
+                        <button class="p-3 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition duration-150" onclick="showNotification('Simulated: Campaigns archived.')">
+                            <i data-lucide="archive" class="w-5 h-5"></i>
+                        </button>
+                        
+                        <!-- Delete Button (New Feature) -->
+                        <button class="p-3 bg-red-600 text-white border border-red-700 rounded-lg hover:bg-red-700 transition duration-150 shadow-md shadow-red-500/50" onclick="showModal('deleteConfirmationModal')">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaigns List/Table Container -->
+            <div class="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
+                <!-- Table Header -->
+                <div class="flex text-sm font-medium uppercase text-gray-600 py-3.5 px-6 border-b border-gray-200 bg-white/50">
+                    <div class="w-12 flex-shrink-0">
+                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll()" class="h-4 w-4 rounded border-gray-300 bg-white text-blue-600 focus:ring-blue-500">
+                    </div>
+                    <div class="w-48 flex-shrink-0">Name</div>
+                    <div class="w-24 flex-shrink-0">Status</div>
+                    <div class="w-32 flex-shrink-0">Progress</div>
+                    <div class="w-20 flex-shrink-0">Sent</div>
+                    <div class="w-20 flex-shrink-0">Click</div>
+                    <div class="w-24 flex-shrink-0">Replied</div>
+                    <div class="flex-1 min-w-[100px]">Opportunities</div>
+                    <div class="w-12 flex-shrink-0"></div> <!-- Dots Menu -->
+                </div>
+                
+                <!-- Campaign Rows -->
+                <div id="campaignsList">
+                    <!-- Rows will be injected here by JavaScript -->
+                </div>
+                
+                <!-- Loading Indicator (Hidden in memory-only mode) -->
+                <div id="loadingIndicator" class="text-center py-8 text-blue-600 hidden">
+                    <i data-lucide="loader-circle" class="w-6 h-6 mx-auto mb-2 animate-spin"></i>
+                    <p>Loading campaigns...</p>
+                </div>
+            </div>
+
+            <!-- Empty State (Hidden by default) -->
+            <div id="emptyState" class="hidden text-center py-16 text-gray-500">
+                <i data-lucide="frown" class="w-12 h-12 mx-auto mb-4"></i>
+                <p class="text-lg font-medium">No campaigns match your search criteria.</p>
+                <p class="text-sm">Try adjusting your filters or search term, or create a new campaign.</p>
+            </div>
+        </div>
+
+        <!-- ============================================= -->
+        <!-- 2. CAMPAIGN DETAIL VIEW (Tabs and Content) -->
+        <!-- ============================================= -->
+        <div id="campaignDetailView" class="hidden p-4 md:p-6 lg:p-8">
+            <!-- Campaign Detail Header -->
+            <header class="flex justify-between items-center pb-6 border-b border-gray-200 mb-6">
+                <div class="flex items-center space-x-4">
+                    <button onclick="switchView('dashboard')" class="p-2 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition duration-150">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <h1 id="campaignDetailName" class="text-3xl font-semibold text-gray-900 truncate">Campaign Name</h1>
+                    <span id="campaignDetailStatus" class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full">Status</span>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Coin/Points Display (Duplicated for layout) -->
+                    <div class="flex items-center text-sm font-medium bg-white px-3 py-1.5 rounded-full border border-gray-300">
+                        <i data-lucide="coin" class="w-4 h-4 text-yellow-500 mr-2 fill-yellow-500 stroke-none"></i>
+                        <span>100</span>
+                    </div>
+                    
+                    <button id="resumePauseButton" class="flex items-center bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-3 rounded-xl transition duration-200 shadow-green-500/50 shadow-md" onclick="showNotification('Campaign state toggled.')">
+                        <i data-lucide="play" class="w-5 h-5 mr-2"></i>
+                        <span>Resume campaign</span>
+                    </button>
+                    
+                    <button class="p-3 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-200 transition duration-150" onclick="showNotification('More options menu opened.')">
+                        <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Tabs Navigation -->
+            <nav class="flex space-x-6 border-b border-gray-200 mb-8 overflow-x-auto whitespace-nowrap">
+                <a href="#" class="tab-link text-gray-600 pb-3 border-b-2 border-transparent hover:border-blue-500 transition duration-150" data-tab="Analytics" onclick="switchTab('Analytics'); return false;">Analytics</a>
+                <a href="#" class="tab-link text-gray-600 pb-3 border-b-2 border-transparent hover:border-blue-500 transition duration-150" data-tab="Leads" onclick="switchTab('Leads'); return false;">Leads</a>
+                <a href="#" class="tab-link text-gray-600 pb-3 border-b-2 border-transparent hover:border-blue-500 transition duration-150" data-tab="Sequences" onclick="switchTab('Sequences'); return false;">Sequences</a>
+                <a href="#" class="tab-link text-gray-600 pb-3 border-b-2 border-transparent hover:border-blue-500 transition duration-150" data-tab="Schedule" onclick="switchTab('Schedule'); return false;">Schedule</a>
+                <a href="#" class="tab-link text-gray-600 pb-3 border-b-2 border-transparent hover:border-blue-500 transition duration-150" data-tab="Options" onclick="switchTab('Options'); return false;">Options</a>
+            </nav>
+
+            <!-- Tab Content Area -->
+            <div id="tabContent">
+                <!-- Content will be rendered here by JavaScript -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODALS -->
+    
+    <!-- Add Campaign Modal (Unchanged) -->
+    <div id="addCampaignModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden" onclick="if(event.target.id === 'addCampaignModal') hideModal('addCampaignModal')">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md">
+            <h3 class="text-xl font-bold text-gray-900 mb-4">Create New Campaign</h3>
+            <p class="text-gray-600 mb-6">Describe your campaign goal and let the AI generate an idea for you.</p>
+            
+            <!-- LLM INPUT AND BUTTON -->
+            <input type="text" id="campaignGoalInput" placeholder="Campaign Goal (e.g., 'Target cold leads with a limited-time offer')" class="w-full bg-gray-100 text-gray-900 rounded-lg py-3 px-4 border border-gray-300 focus:border-blue-500 focus:outline-none mb-4">
+
+            <button id="generateIdeaBtn" class="flex items-center justify-center w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-3 rounded-xl transition duration-200 mb-6 shadow-md shadow-purple-500/50" onclick="generateCampaignIdea()">
+                <i data-lucide="sparkles" class="w-5 h-5 mr-2"></i>
+                Generate Idea ✨
+            </button>
+
+            <div class="h-px bg-gray-300 my-4"></div>
+
+            <h4 class="text-lg font-semibold text-gray-900 mb-3">Draft Details</h4>
+            
+            <input type="text" id="campaignNameInput" placeholder="Campaign Name" class="w-full bg-gray-100 text-gray-900 rounded-lg py-3 px-4 border border-gray-300 focus:border-blue-500 focus:outline-none mb-4">
+            <textarea id="campaignDescriptionInput" placeholder="Description (Optional)" rows="3" class="w-full bg-gray-100 text-gray-900 rounded-lg py-3 px-4 border border-gray-300 focus:border-blue-500 focus:outline-none mb-6"></textarea>
+
+            <div class="flex justify-end space-x-3">
+                <button class="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition" onclick="hideModal('addCampaignModal')">Cancel</button>
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition" onclick="createNewCampaign()">Create Campaign</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal (Unchanged) -->
+    <div id="deleteConfirmationModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden" onclick="if(event.target.id === 'deleteConfirmationModal') hideModal('deleteConfirmationModal')">
+        <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-sm">
+            <div class="flex items-center mb-4">
+                <i data-lucide="alert-triangle" class="w-6 h-6 text-red-500 mr-3"></i>
+                <h3 class="text-xl font-bold text-gray-900">Confirm Deletion</h3>
+            </div>
+            <p id="deleteMessage" class="text-gray-600 mb-6">Are you sure you want to delete the selected campaigns? This action cannot be undone.</p>
+            
+            <div class="flex justify-end space-x-3">
+                <button class="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition" onclick="hideModal('deleteConfirmationModal')">Cancel</button>
+                <button class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition" onclick="deleteSelectedCampaigns()">Delete</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notification/Toast Area -->
+    <div id="notificationArea" class="fixed bottom-4 right-4 space-y-2 z-50"></div>
+
+
+<script>
+
+    // --- GLOBAL APP STATE ---
+    let ALL_CAMPAIGNS = [
+        { id: 'c1', name: 'Q3 Lead Nurturing Sequence', status: 'Active', progress: 85, sent: 12400, click: 3500, replied: 890, opportunities: 25, date: new Date('2023-09-01') },
+        { id: 'c2', name: 'Welcome Aboard Series V2', status: 'Completed', progress: 100, sent: 8000, click: 2100, replied: 520, opportunities: 18, date: new Date('2023-10-15') },
+        { id: 'c3', name: 'Abandoned Cart Follow-up (Pilot)', status: 'Draft', progress: 0, sent: 0, click: 0, replied: 0, opportunities: 0, date: new Date('2024-03-10') },
+        { id: 'c4', name: 'Winter Holidays Retargeting', status: 'Paused', progress: 45, sent: 5100, click: 980, replied: 150, opportunities: 7, date: new Date('2023-11-20') },
+        { id: 'c5', name: 'Beta Feature Launch', status: 'Active', progress: 62, sent: 9400, click: 4200, replied: 1100, opportunities: 31, date: new Date('2024-01-05') },
+    ];
+    let selectedCampaignIds = new Set();
+    let currentView = 'dashboard';
+    let selectedCampaign = null; 
+    
+    // Global API Key for Gemini (Required for idea generation)
+    const apiKey = ""; 
+
+    // DOM Elements
+    const listElement = document.getElementById('campaignsList');
+    const emptyStateElement = document.getElementById('emptyState');
+    const dashboardView = document.getElementById('dashboardView');
+    const campaignDetailView = document.getElementById('campaignDetailView');
+    const campaignDetailName = document.getElementById('campaignDetailName');
+    const campaignDetailStatus = document.getElementById('campaignDetailStatus');
+    const resumePauseButton = document.getElementById('resumePauseButton');
+    const tabContent = document.getElementById('tabContent');
+
+
+    // --- VIEW SWITCHING LOGIC ---
+    
+    /** Switches the application's current view between 'dashboard' and 'detail' */
+    const switchView = (viewName, campaignId = null) => {
+        currentView = viewName;
+        
+        // Hide all views
+        dashboardView.classList.add('hidden');
+        campaignDetailView.classList.add('hidden');
+        
+        if (viewName === 'dashboard') {
+            selectedCampaign = null;
+            dashboardView.classList.remove('hidden');
+            filterCampaigns(); // Ensure dashboard is updated
+        } else if (viewName === 'detail' && campaignId) {
+            selectedCampaign = ALL_CAMPAIGNS.find(c => c.id === campaignId);
+            if (!selectedCampaign) {
+                showNotification("Error: Campaign not found.");
+                switchView('dashboard');
+                return;
+            }
+            campaignDetailView.classList.remove('hidden');
+            renderCampaignDetail(selectedCampaign);
+        }
+        lucide.createIcons();
+        window.scrollTo(0, 0); // Scroll to top on page switch
+    };
+
+    // --- CAMPAIGN DETAIL RENDERING ---
+
+    const renderCampaignDetail = (campaign) => {
+        // 1. Update Header Info
+        campaignDetailName.textContent = campaign.name;
+        campaignDetailStatus.textContent = campaign.status;
+        campaignDetailStatus.className = `inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${getStatusStyle(campaign.status)}`;
+        
+        // 2. Update Resume/Pause Button
+        const isCampaignActive = campaign.status === 'Active';
+        resumePauseButton.className = `flex items-center font-semibold px-4 py-3 rounded-xl transition duration-200 shadow-md ${isCampaignActive ? 'bg-red-600 hover:bg-red-700 shadow-red-500/50' : 'bg-green-600 hover:bg-green-700 shadow-green-500/50'} text-white`;
+        resumePauseButton.innerHTML = `<i data-lucide="${isCampaignActive ? 'pause' : 'play'}" class="w-5 h-5 mr-2"></i> <span>${isCampaignActive ? 'Pause campaign' : 'Resume campaign'}</span>`;
+        
+        // 3. Set initial tab to Analytics
+        switchTab('Analytics');
+    };
+    
+    // --- TAB SWITCHING LOGIC ---
+
+    const switchTab = (tabName) => {
+        // Update tab styling
+        document.querySelectorAll('.tab-link').forEach(link => {
+            if (link.dataset.tab === tabName) {
+                link.classList.remove('text-gray-600', 'border-transparent');
+                link.classList.add('text-gray-900', 'border-blue-500');
+            } else {
+                link.classList.remove('text-gray-900', 'border-blue-500');
+                link.classList.add('text-gray-600', 'border-transparent');
+            }
+        });
+
+        // Render content for the selected tab
+        renderTabContent(tabName);
+    };
+
+    const renderTabContent = (tabName) => {
+        let contentHTML = '';
+        
+        if (!selectedCampaign) return; // Guard
+
+        switch (tabName) {
+            case 'Analytics':
+                // Based on Instantly_analytics.png
+                contentHTML = `
+                    <div class="p-4 md:p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+                        <div class="flex flex-wrap items-center space-x-6 text-sm font-medium mb-6">
+                            <p class="text-gray-600">Status: <span class="text-gray-900">${selectedCampaign.status}</span></p>
+                            <div class="flex items-center my-2">
+                                <span class="text-gray-900 mr-2">${selectedCampaign.progress}%</span>
+                                <div class="w-32 bg-gray-300 rounded-full h-2.5">
+                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: ${selectedCampaign.progress}%"></div>
+                                </div>
+                            </div>
+                            <div class="flex items-center text-gray-600 space-x-2 my-2 cursor-pointer hover:text-gray-900 transition">
+                                <i data-lucide="share-2" class="w-4 h-4"></i>
+                                <span>Share</span>
+                            </div>
+                            <div class="relative my-2">
+                                <select class="appearance-none bg-gray-100 border border-gray-300 text-gray-900 text-sm rounded-lg block py-1.5 pl-3 pr-8 cursor-pointer hover:bg-gray-200">
+                                    <option>Last 4 weeks</option>
+                                    <option>Last 30 days</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Metrics Grid -->
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                            ${renderMetricCard("Sequence started", "—", "info")}
+                            ${renderMetricCard("Open rate", "0% | —", "activity")}
+                            ${renderMetricCard("Click rate", "0% | —", "mouse-pointer-2")}
+                            ${renderMetricCard("Opportunities", `0 | $0`, "trending-up")}
+                            ${renderMetricCard("Conversions", `0 | $0`, "check-circle")}
+                        </div>
+
+                        <!-- Placeholder Message -->
+                        <div class="text-center py-12 border border-dashed border-gray-300 rounded-lg bg-gray-100/50">
+                            <p class="text-lg text-gray-600 font-medium">No data available for specified time</p>
+                            <p class="text-sm text-gray-500 mt-2">Step analytics will appear here once the campaign is published.</p>
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'Leads':
+                // Based on Instantly_leads.png
+                contentHTML = `
+                    <div class="p-8 bg-white rounded-xl shadow-lg border border-gray-200 text-center">
+                        <div class="max-w-xs mx-auto mb-8">
+                            <img src="https://placehold.co/400x300/F3F4F6/6B7280/svg?text=Lead+Management+Illustration" onerror="this.onerror=null; this.src='https://placehold.co/400x300/F3F4F6/6B7280/svg?text=Lead+Management+Illustration';" alt="Leads Illustration" class="w-full h-auto rounded-lg">
+                        </div>
+                        <p class="text-xl font-medium text-gray-900 mb-4">Add some leads to get started</p>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition duration-200 shadow-md" onclick="showNotification('Leads upload simulated.')">
+                            <i data-lucide="user-plus" class="w-5 h-5 mr-2 inline-block"></i> Add Leads
+                        </button>
+                    </div>
+                `;
+                break;
+            case 'Sequences':
+                // Based on Instantly_sequences.png
+                contentHTML = `
+                    <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
+                        <!-- Left Panel: Steps -->
+                        <div class="w-full md:w-64 flex-shrink-0 space-y-4">
+                            <div class="p-4 bg-gray-100 rounded-xl border border-blue-500 shadow-lg">
+                                <p class="font-semibold text-gray-900 mb-2">Step 1</p>
+                                <div class="p-3 bg-white rounded-lg text-gray-600 mb-3">
+                                    &lt;Empty subject&gt;
+                                </div>
+                                <button class="flex items-center justify-center w-full py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-100 transition">
+                                    <i data-lucide="plus" class="w-4 h-4 mr-1"></i> Add variant
+                                </button>
+                            </div>
+                            <button class="flex items-center justify-center w-full py-3 text-sm text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+                                <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Add step
+                            </button>
+                        </div>
+                        
+                        <!-- Right Panel: Editor -->
+                        <div class="flex-1 p-6 bg-white rounded-xl border border-gray-200 shadow-lg">
+                            <div class="flex justify-between items-center mb-4">
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Subject</label>
+                                <button class="text-blue-600 hover:text-blue-500 text-sm">
+                                    <i data-lucide="eye" class="w-4 h-4 mr-1 inline-block"></i> Preview
+                                </button>
+                            </div>
+                            <input type="text" value="Your subject" class="w-full bg-gray-100 text-gray-900 rounded-lg py-2 px-3 border border-gray-300 focus:border-blue-500 focus:outline-none mb-4">
+                            <textarea placeholder="Start typing here..." rows="12" class="w-full bg-gray-100 text-gray-900 rounded-lg py-3 px-4 border border-gray-300 focus:border-blue-500 focus:outline-none"></textarea>
+                            
+                            <!-- Editor Toolbar Placeholder -->
+                            <div class="flex justify-between items-center mt-4 border-t border-gray-300 pt-4">
+                                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold">Save</button>
+                                <div class="flex space-x-3 text-gray-600">
+                                    <i data-lucide="calendar" class="w-5 h-5 cursor-pointer hover:text-gray-900"></i>
+                                    <i data-lucide="image" class="w-5 h-5 cursor-pointer hover:text-gray-900"></i>
+                                    <i data-lucide="list" class="w-5 h-5 cursor-pointer hover:text-gray-900"></i>
+                                    <i data-lucide="type" class="w-5 h-5 cursor-pointer hover:text-gray-900"></i>
+                                    <i data-lucide="link" class="w-5 h-5 cursor-pointer hover:text-gray-900"></i>
+                                    <i data-lucide="code" class="w-5 h-5 cursor-pointer hover:text-gray-900"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'Schedule':
+                // Based on schedule.png
+                contentHTML = `
+                    <div class="flex flex-col md:flex-row space-y-6 md:space-y-0 md:space-x-6">
+                        <!-- Left Panel: Schedule Settings -->
+                        <div class="w-full md:w-64 flex-shrink-0 space-y-4">
+                            <div class="p-4 bg-white rounded-xl border border-gray-200 shadow-lg">
+                                <p class="text-gray-600 mb-2">Start | <span class="text-gray-900 font-medium">Now</span></p>
+                                <p class="text-gray-600 mb-4">End | <span class="text-blue-600 cursor-pointer hover:underline">No end date</span></p>
+                                
+                                <button class="flex items-center justify-center w-full py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-100 transition">
+                                    <i data-lucide="calendar-plus" class="w-4 h-4 mr-1"></i> New schedule
+                                </button>
+                            </div>
+                            <button class="flex items-center justify-center w-full py-3 text-sm text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+                                <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Add schedule
+                            </button>
+                        </div>
+
+                        <!-- Right Panel: Schedule Details -->
+                        <div class="flex-1 p-6 bg-white rounded-xl border border-gray-200 shadow-lg">
+                            <h3 class="text-xl font-bold text-gray-900 mb-6">Schedule Name</h3>
+                            <input type="text" value="New schedule" class="w-full bg-gray-100 text-gray-900 rounded-lg py-3 px-4 border border-gray-300 focus:border-blue-500 focus:outline-none mb-8">
+                            
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4">Timing</h4>
+                            <div class="flex flex-wrap gap-4 mb-8">
+                                <div class="relative">
+                                    <select class="appearance-none bg-gray-100 border border-gray-300 text-gray-900 rounded-lg py-3 px-4 pr-10 cursor-pointer hover:bg-gray-200">
+                                        <option>From 9:00 AM</option>
+                                    </select>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                                </div>
+                                <div class="relative">
+                                    <select class="appearance-none bg-gray-100 border border-gray-300 text-gray-900 rounded-lg py-3 px-4 pr-10 cursor-pointer hover:bg-gray-200">
+                                        <option>To 6:00 PM</option>
+                                    </select>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                                </div>
+                                <div class="relative">
+                                    <select class="appearance-none bg-gray-100 border border-gray-300 text-gray-900 rounded-lg py-3 px-4 pr-10 cursor-pointer hover:bg-gray-200">
+                                        <option>Eastern Time (US:)</option>
+                                    </select>
+                                    <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                                </div>
+                            </div>
+
+                            <h4 class="text-lg font-semibold text-gray-900 mb-4">Days</h4>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                ${renderCheckbox('Monday', true)}
+                                ${renderCheckbox('Tuesday', true)}
+                                ${renderCheckbox('Wednesday', true)}
+                                ${renderCheckbox('Thursday', true)}
+                                ${renderCheckbox('Friday', true)}
+                                ${renderCheckbox('Saturday', false)}
+                                ${renderCheckbox('Sunday', false)}
+                            </div>
+                            
+                            <div class="mt-8 pt-4 border-t border-gray-300">
+                                <button class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-semibold">Save</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'Options':
+                // Based on options.jpg
+                contentHTML = `
+                    <div class="bg-white rounded-xl p-6 space-y-6 shadow-lg border border-gray-200">
+                        ${renderOptionBlock('Accounts to use', 'Select one or more accounts to send emails from', `
+                            <div class="relative w-full">
+                                <select class="w-full bg-gray-100 text-gray-900 rounded-lg py-2.5 px-4 pr-10 border border-gray-300 focus:border-blue-500 focus:outline-none hover:bg-gray-200">
+                                    <option>Select...</option>
+                                    <option>Account A</option>
+                                    <option>Account B</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-gray-600 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+                            </div>
+                            <button class="text-blue-600 hover:text-blue-500 text-sm mt-2 block w-full text-left md:text-right">Connect new email account</button>
+                        `)}
+
+                        ${renderOptionBlock('Stop sending emails on reply', 'Stop sending emails to a lead if a response has been received', `
+                            <div class="flex space-x-2 justify-end">
+                                <button class="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition">Disable</button>
+                                <button class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Enable</button>
+                            </div>
+                        `)}
+                        
+                        ${renderOptionBlock('Open Tracking', 'Track email opens', `
+                            <div class="flex flex-wrap items-center justify-end gap-3">
+                                <label class="flex items-center text-sm text-gray-600">
+                                    <input type="checkbox" class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500 mr-2">
+                                    Link tracking
+                                </label>
+                                <div class="flex space-x-2">
+                                    <button class="px-4 py-2 bg-gray-200 text-gray-900 rounded-lg hover:bg-gray-300 transition">Disable</button>
+                                    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Enable</button>
+                                </div>
+                            </div>
+                        `)}
+
+                        ${renderOptionBlock('Delivery Optimization', 'Disables open tracking', `
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-end text-sm text-gray-600">
+                                    <span class="text-green-600 text-xs font-semibold px-2 py-0.5 rounded-full bg-green-200 mr-4">Recommended</span>
+                                    <label class="flex items-center text-sm text-gray-600">
+                                        <input type="checkbox" class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500 mr-2">
+                                        Send emails as text-only (no HTML)
+                                    </label>
+                                </div>
+                                <label class="flex items-center justify-end text-sm text-gray-600">
+                                    <input type="checkbox" class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500 mr-2">
+                                    Send first email as text-only <span class="ml-2 text-yellow-600 text-xs font-semibold px-2 py-0.5 rounded-full bg-yellow-200">Pro</span>
+                                </label>
+                            </div>
+                        `, true)}
+
+                        ${renderOptionBlock('Daily Limit', 'Max number of emails to send per day for this campaign', `
+                            <input type="number" value="30" class="w-20 bg-gray-100 text-gray-900 rounded-lg py-2.5 px-3 border border-gray-300 focus:border-blue-500 focus:outline-none text-right">
+                        `)}
+                        
+                        <div class="text-center pt-4">
+                            <button class="text-blue-600 hover:text-blue-500 text-sm flex items-center justify-center mx-auto" onclick="showNotification('Advanced options toggled.')">
+                                <i data-lucide="chevron-down" class="w-4 h-4 mr-1"></i> Show advanced options
+                            </button>
+                        </div>
+                    </div>
+                `;
+                break;
+            default:
+                contentHTML = `<div class="p-8 text-center text-gray-500">Select a tab to view content.</div>`;
+        }
+
+        tabContent.innerHTML = contentHTML;
+        lucide.createIcons();
+    };
+
+
+    // --- UTILITY FUNCTIONS ---
+    
+    const getStatusStyle = (status) => {
+        // Updated colors for better visibility on a light background
+        switch (status) {
+            case 'Draft': return 'bg-yellow-100 text-yellow-800';
+            case 'Active': return 'bg-green-100 text-green-800';
+            case 'Completed': return 'bg-blue-100 text-blue-800';
+            case 'Paused': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+    
+    const renderProgressBar = (progress) => {
+        if (progress === 0) return '—';
+        return `
+            <div class="relative pt-1">
+                <div class="overflow-hidden h-2 text-xs flex rounded bg-gray-300">
+                    <div style="width:${progress}%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${progress === 100 ? 'bg-green-500' : 'bg-blue-500'} transition-all duration-500"></div>
+                </div>
+            </div>
+        `;
+    };
+
+    // Helper for rendering metric cards in Analytics tab
+    const renderMetricCard = (title, value, icon) => {
+        return `
+            <div class="p-4 bg-gray-100 rounded-xl border border-gray-300">
+                <div class="flex justify-between items-center mb-1">
+                    <p class="text-xs font-medium uppercase text-gray-600">${title}</p>
+                    <i data-lucide="${icon}" class="w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-900" onclick="showNotification('Metric info for ${title} shown.')"></i>
+                </div>
+                <p class="text-2xl font-bold text-gray-900">${value}</p>
+            </div>
+        `;
+    };
+    
+    // Helper for rendering checkboxes in Schedule tab
+    const renderCheckbox = (label, isChecked) => {
+        return `
+            <label class="flex items-center text-sm text-gray-800 cursor-pointer">
+                <input type="checkbox" ${isChecked ? 'checked' : ''} class="h-4 w-4 rounded border-gray-300 bg-gray-100 text-blue-600 focus:ring-blue-500 mr-2">
+                ${label}
+            </label>
+        `;
+    };
+
+    // Helper for rendering option blocks in Options tab
+    const renderOptionBlock = (title, description, controlsHTML, hideBorder = false) => {
+        return `
+            <div class="flex flex-col md:flex-row justify-between items-start py-4 gap-4 ${hideBorder ? '' : 'border-b border-gray-200'}">
+                <div class="flex-1 max-w-lg">
+                    <h5 class="text-lg font-medium text-gray-900">${title}</h5>
+                    <p class="text-sm text-gray-600">${description}</p>
+                </div>
+                <div class="ml-0 md:ml-8 flex-shrink-0 w-full md:w-auto min-w-[200px]">
+                    ${controlsHTML}
+                </div>
+            </div>
+        `;
+    };
+    
+    // Helper function with exponential backoff for Gemini API
+    async function fetchGeminiResponse(payload, maxRetries = 3, delay = 1000) {
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    if (response.status === 429 && i < maxRetries - 1) {
+                        await new Promise(resolve => setTimeout(resolve, delay * (2 ** i) + (Math.random() * 1000)));
+                        continue;
+                    }
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                return await response.json();
+
+            } catch (error) {
+                console.error("Fetch attempt failed:", error);
+                if (i === maxRetries - 1) throw error;
+            }
+        }
+    }
+
+
+    // --- LLM GENERATION LOGIC ---
+    
+    async function generateCampaignIdea() {
+        const goalInput = document.getElementById('campaignGoalInput');
+        const nameInput = document.getElementById('campaignNameInput');
+        const descInput = document.getElementById('campaignDescriptionInput');
+        const generateBtn = document.getElementById('generateIdeaBtn');
+        const userQuery = goalInput.value.trim();
+
+        if (userQuery.length < 10) {
+            showNotification('Please enter a more descriptive campaign goal (min 10 characters).');
+            return;
+        }
+
+        // Disable button and show loading state
+        generateBtn.disabled = true;
+        generateBtn.innerHTML = '<i data-lucide="loader-circle" class="w-5 h-5 mr-2 animate-spin"></i> Generating...';
+        lucide.createIcons();
+        
+        try {
+            const systemPrompt = "You are a creative marketing copywriter specializing in campaign strategy. Generate a concise, catchy campaign name (max 5 words) and a short, engaging description (max 4 sentences) in JSON format based on the user's provided goal.";
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "campaignName": { "type": "STRING" },
+                            "descriptionDraft": { "type": "STRING" }
+                        },
+                        propertyOrdering: ["campaignName", "descriptionDraft"]
+                    }
+                }
+            };
+
+            const result = await fetchGeminiResponse(payload);
+            
+            const candidate = result.candidates?.[0];
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                const jsonText = candidate.content.parts[0].text;
+                const parsedJson = JSON.parse(jsonText);
+                
+                nameInput.value = parsedJson.campaignName || '';
+                descInput.value = parsedJson.descriptionDraft || '';
+
+                showNotification('✨ Campaign idea generated successfully!');
+            } else {
+                throw new Error("Failed to parse Gemini response.");
+            }
+
+        } catch (error) {
+            console.error("Gemini Generation Error:", error);
+            showNotification('Failed to generate idea. Please check the console for details.');
+        } finally {
+            // Restore button state
+            generateBtn.disabled = false;
+            generateBtn.innerHTML = '<i data-lucide="sparkles" class="w-5 h-5 mr-2"></i> Generate Idea ✨';
+            lucide.createIcons();
+        }
+    }
+
+    // --- SELECTION & FILTER LOGIC ---
+
+    const toggleCampaignSelection = (id) => {
+        const checkbox = document.querySelector(`input[data-id="${id}"]`);
+
+        if (selectedCampaignIds.has(id) || (checkbox && !checkbox.checked)) {
+            selectedCampaignIds.delete(id);
+        } else if (checkbox && checkbox.checked) {
+            selectedCampaignIds.add(id);
+        }
+        
+        toggleActionBar();
+        updateSelectAllCheckbox();
+    };
+    
+    const toggleActionBar = () => {
+        const count = selectedCampaignIds.size;
+        const staticActionButtons = document.getElementById('staticActionButtons'); 
+        const selectionBar = document.getElementById('selectionActionBar');
+        const deleteMsg = document.getElementById('deleteMessage');
+
+        document.getElementById('selectedCount').textContent = `${count} selected`;
+        deleteMsg.textContent = `Are you sure you want to delete ${count} selected campaign(s)? This action cannot be undone.`;
+
+        if (count > 0) {
+            // Show selection actions
+            staticActionButtons.classList.add('hidden');
+            selectionBar.classList.remove('hidden');
+            selectionBar.classList.add('flex');
+        } else {
+            // Show static actions
+            staticActionButtons.classList.remove('hidden');
+            selectionBar.classList.add('hidden');
+            selectionBar.classList.remove('flex');
+        }
+    };
+
+    const filterAndSortCampaigns = () => {
+        const searchVal = document.getElementById('searchInput').value.toLowerCase();
+        const statusVal = document.getElementById('statusFilter').value;
+        const sortVal = document.getElementById('sortOrder').value;
+
+        let filtered = ALL_CAMPAIGNS.filter(c => {
+            const nameMatch = c.name.toLowerCase().includes(searchVal);
+            const statusMatch = !statusVal || c.status === statusVal;
+            return nameMatch && statusMatch;
+        });
+        
+        // Sorting logic
+        filtered.sort((a, b) => {
+            if (sortVal === 'newest') {
+                return b.date.getTime() - a.date.getTime(); 
+            } else if (sortVal === 'oldest') {
+                return a.date.getTime() - b.date.getTime();
+            } else if (sortVal === 'name') {
+                return a.name.localeCompare(b.name);
+            } else if (sortVal === 'progress') {
+                return b.progress - a.progress;
+            }
+            return 0; // Default: no change
+        });
+        return filtered;
+    };
+    
+    const toggleSelectAll = () => {
+        const isChecked = document.getElementById('selectAllCheckbox').checked;
+        const currentCampaigns = filterAndSortCampaigns(); 
+        
+        // Deselect all current campaigns first
+        currentCampaigns.forEach(c => selectedCampaignIds.delete(c.id));
+
+        if (isChecked) {
+            // Select all currently filtered campaigns
+            currentCampaigns.forEach(c => selectedCampaignIds.add(c.id));
+        }
+        
+        renderCampaigns(currentCampaigns);
+        toggleActionBar();
+    };
+
+    const updateSelectAllCheckbox = () => {
+        const totalRendered = filterAndSortCampaigns().length;
+        const selectedCount = selectedCampaignIds.size;
+        const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+        
+        if (!selectAllCheckbox) return;
+
+        const isAllSelected = totalRendered > 0 && selectedCampaignIds.size === totalRendered;
+        
+        if (selectedCount === 0) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        } else if (isAllSelected) {
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.indeterminate = false;
+        } else {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = true;
+        }
+    };
+
+    // --- CRUD/RENDER LOGIC (In-Memory) ---
+
+    const renderCampaigns = (campaignsToRender) => {
+        listElement.innerHTML = '';
+        
+        if (campaignsToRender.length === 0) {
+            emptyStateElement.classList.remove('hidden');
+            if (ALL_CAMPAIGNS.length === 0) {
+                selectedCampaignIds.clear();
+                toggleActionBar();
+            }
+            return;
+        } else {
+            emptyStateElement.classList.add('hidden');
+        }
+
+        campaignsToRender.forEach(campaign => {
+            const isSelected = selectedCampaignIds.has(campaign.id);
+            const row = document.createElement('div');
+            // Updated hover/border/background classes for light theme
+            row.className = 'flex items-center text-sm text-gray-800 py-4 px-6 border-b border-gray-200 hover:bg-gray-100 transition duration-150 bg-white'; 
+            
+            row.innerHTML = `
+                <div class="w-12 flex-shrink-0">
+                    <input type="checkbox" data-id="${campaign.id}" onchange="toggleCampaignSelection('${campaign.id}')" ${isSelected ? 'checked' : ''} class="h-4 w-4 rounded border-gray-300 bg-white text-blue-600 focus:ring-blue-500">
+                </div>
+                <button onclick="switchView('detail', '${campaign.id}')" class="w-48 flex-shrink-0 font-medium truncate text-left text-gray-900 hover:text-blue-500 transition cursor-pointer">${campaign.name}</button>
+                <div class="w-24 flex-shrink-0">
+                    <span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${getStatusStyle(campaign.status)}">
+                        ${campaign.status}
+                    </span>
+                </div>
+                <div class="w-32 flex-shrink-0">${renderProgressBar(campaign.progress)}</div>
+                <div class="w-20 flex-shrink-0">${campaign.sent.toLocaleString() || '—'}</div>
+                <div class="w-20 flex-shrink-0">${campaign.click.toLocaleString() || '—'}</div>
+                <div class="w-24 flex-shrink-0">${campaign.replied.toLocaleString() || '—'}</div>
+                <div class="flex-1 min-w-[100px] font-semibold text-blue-600">${campaign.opportunities.toLocaleString() || '—'}</div>
+                <div class="w-12 flex-shrink-0 text-gray-600 hover:text-gray-900 cursor-pointer" onclick="showNotification('Actions for ${campaign.name} revealed.')">
+                    <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+                </div>
+            `;
+            listElement.appendChild(row);
+        });
+        
+        lucide.createIcons();
+    };
+
+    const filterCampaigns = () => {
+        const filtered = filterAndSortCampaigns();
+        renderCampaigns(filtered);
+        toggleActionBar(); 
+        updateSelectAllCheckbox(); 
+    };
+    
+    function deleteSelectedCampaigns() {
+        const idsToDelete = Array.from(selectedCampaignIds);
+
+        // Filter the main array to keep only campaigns whose IDs are NOT in the set
+        ALL_CAMPAIGNS = ALL_CAMPAIGNS.filter(c => !selectedCampaignIds.has(c.id));
+        
+        selectedCampaignIds.clear(); // Clear selection
+        hideModal('deleteConfirmationModal');
+        showNotification(`Successfully deleted ${idsToDelete.length} campaign(s).`);
+        
+        filterCampaigns(); // Re-render the list
+    }
+
+    function createNewCampaign() {
+        const name = document.getElementById('campaignNameInput').value.trim();
+        const description = document.getElementById('campaignDescriptionInput').value.trim();
+        
+        if (!name) {
+            showNotification("Please enter a campaign name.");
+            return;
+        }
+        
+        // Generate a simple, unique ID for in-memory tracking
+        const maxId = Math.max(0, ...ALL_CAMPAIGNS.map(c => parseInt(c.id.substring(1), 10)));
+        const newId = 'c' + (maxId + 1);
+
+        const newCampaign = { 
+            id: newId, 
+            name: name, 
+            description: description, 
+            status: "Draft", 
+            progress: 0, 
+            sent: 0, 
+            click: 0, 
+            replied: 0, 
+            opportunities: 0, 
+            date: new Date() 
+        };
+
+        ALL_CAMPAIGNS.push(newCampaign);
+
+        showNotification(`New Campaign '${name}' created in memory!`); 
+        hideModal('addCampaignModal');
+        
+        filterCampaigns(); // Re-render the list to show the new item
+    };
+    
+    // Function to reset the modal inputs
+    const resetAddCampaignModal = () => {
+        const goalInput = document.getElementById('campaignGoalInput');
+        const nameInput = document.getElementById('campaignNameInput');
+        const descInput = document.getElementById('campaignDescriptionInput');
+        if (goalInput) goalInput.value = '';
+        if (nameInput) nameInput.value = '';
+        if (descInput) descInput.value = '';
+    }
+
+    // --- MODAL & NOTIFICATION FUNCTIONS ---
+
+    const showModal = (id) => {
+        document.getElementById(id).classList.remove('hidden');
+        if (id === 'addCampaignModal') {
+            resetAddCampaignModal();
+            lucide.createIcons();
+        }
+    };
+
+    const hideModal = (id) => {
+        document.getElementById(id).classList.add('hidden');
+    };
+
+    const showNotification = (message) => {
+        const area = document.getElementById('notificationArea');
+        const notification = document.createElement('div');
+        // Updated notification background for light theme
+        notification.className = 'bg-white text-gray-900 p-4 rounded-xl shadow-xl transition-all duration-300 transform translate-x-0 opacity-100 border-l-4 border-blue-600 max-w-xs';
+        notification.textContent = message;
+        area.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.replace('opacity-100', 'opacity-0');
+            notification.classList.replace('translate-x-0', 'translate-x-full');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    };
+
+    // Initialize on load
+    window.onload = () => {
+        lucide.createIcons();
+        switchView('dashboard'); // Initial render
+    };
+
+</script>
+
+</body>
+</html>
