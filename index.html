@@ -37,8 +37,121 @@
       blue:  "#56c9fe",
       mint:  "#79f9db"
     };
+	const THEMES = {
+			system: {
+			bg: "#3a6ea5",               // XP Luna blue background (taskbar-style)
+			panel: "#ffffff",            // Classic white window background
+			panelAlt: "#f0f0f0",         // XP light gray (form fields, tool panes)			
+			text: "#000000",             // Standard black text
+			subtext: "#4d4d4d",          // XP medium gray subtext
+			interactive: "#3a6ea5",      // XP button blue (default button)
+			interactiveText: "#ffffff",  // White label on blue buttons
+			primary: "#1e4da1",          // Darker XP blue (title bar active)
+			primaryText: "#ffffff",      // White title bar text
+			danger: "#cc3333",           // XP warning red
+			warning: "#ffcc00",          // XP yellow warning highlight
+			success: "#339933",          // XP “green checkmark” green
+			border: "#7ba7d7",           // XP bevel/light-blue window border
+			focus: "#ffcc00",            // XP gold focus glow (list highlight)
+			rowWarnBg: "rgba(255,204,0,0.18)", // XP highlight yellow tint
+			optionHoverBg: "rgba(58,110,165,0.20)" // Soft blue hover like XP menus
+	},
+		light: {
+			bg: "#f5f5f7",
+			panel: "#ffffff",
+			panelAlt: "#f9fafb",
+			text: "#0f172a",
+			subtext: "#6b7280",
+			interactive: "#2563eb",
+			interactiveText: "#ffffff",
+			primary: "#2563eb",
+			primaryText: "#ffffff",
+			danger: "#e93a3b",
+			warning: "#f59e0b",
+			success: "#15803d",
+			border: "#e5e7eb",
+			focus: "#a963ff",
+			rowWarnBg: "rgba(233,58,59,0.08)",
+			optionHoverBg: "rgba(86,201,254,0.12)"
+	},
+		dark: {
+			bg: "#121212",
+			panel: "#1e1e1e",
+			panelAlt: "#2a2a2a",
+			text: "#f5f5f5",
+			subtext: "#aaaaaa",
+			interactive: "#56c9fe",
+			interactiveText: "#000000",
+			primary: "#79f9db",
+			primaryText: "#000000",
+			danger: "#e93a3b",
+			warning: "#f9c900",
+			success: "#15803d",
+			border: "#333333",
+			focus: "#a963ff",
+			rowWarnBg: "rgba(233,58,59,0.2)",
+			optionHoverBg: "rgba(86,201,254,0.2)"
+	},
+		matrix: {
+			bg: "#000000",                 
+			panel: "#001100",              
+			panelAlt: "#002200",           
+			text: "#00ff00",               
+			subtext: "#33cc33",            
+			interactive: "#00ff00",        
+			interactiveText: "#f9c900",    
+			primary: "#f9c900",            
+			primaryText: "#f9c900",        
+			danger: "#e93a3b",             
+			warning: "#f9c900",            
+			success: "#15803d",            
+			border: "#00ff00",             
+			focus: "#00ff00",              
+			rowWarnBg: "rgba(0,255,0,0.1)",
+			optionHoverBg: "rgba(0,255,0,0.2)"
 
-    const COLORS = {
+	},
+	tuesday: {
+			bg: "#1f2430",               // Deep navy/indigo background
+			panel: "#2a2f3c",            // Card background (dark but lifted)
+			panelAlt: "#323846",         // Slightly lighter alt panel
+			text: "#f5f7fa",             // Near-white main text
+			subtext: "#a0a7b4",          // Muted gray/blue subtext
+			interactive: "#4cc2ff",
+			interactiveText: "#ffffff",
+			primary: "#6d55ff",          // Purple (“Ready to start”)
+			primaryText: "#ffffff",
+			warning: "#ffb627",          // Gold/yellow (“In progress”)
+			success: "#1fba6e",          // Green (system success)
+			danger: "#ff5e7d",           // Pink-red (“Waiting for review”)
+			border: "#3a4050",           // Soft slate/blue-gray border
+			focus: "#7f89ff",            // Indigo focus ring
+			rowWarnBg: "rgba(255,182,39,0.12)",   // Soft warm yellow tint
+			optionHoverBg: "rgba(76,194,255,0.14)" // Pale cyan hover tint
+	},
+	ebit: {
+			bg: "#f7f7f7",          // Light gray – Nintendo UI / Switch menus
+			panel: "#363636",         // Clean Nintendo menu white
+			panelAlt: "#C4C4C4",      // Slightly off-white like Switch subpanels
+			text: "#1b1b1b",          // Dark charcoal (Nintendo uses softer black)
+			subtext: "#6d6d6d",       // Neutral gray for secondary labels
+			interactive: "#3db5ff",   // Joy-Con Neon Blue  #3db5ff
+			interactiveText: "#000000",
+			primary: "#e60012",       // Official Nintendo Red
+			primaryText: "#ffffff",
+			danger: "#ff3c28",        // Switch Neon Red (attention color)
+			warning: "#f9c900",       // Gold/yellow (coin/mario star)
+			success: "#1aa34a",       // Nintendo’s positive green
+			border: "#dcdcdc",        // NES light gray trim
+			focus: "#a963ff",         // Keeping your purple accent, fits Mario Galaxy vibe
+			rowWarnBg: "rgba(255,60,40,0.10)",   // subtle neon red highlight
+			optionHoverBg: "rgba(61,181,255,0.14)" // subtle neon blue hover	
+	}	
+};
+let COLORS = THEMES.light; // default
+
+
+ /*   let COLORS = {
       bg: "#f5f5f7",
       panel: "#ffffff",
       panelAlt: "#f9fafb",
@@ -56,6 +169,8 @@
       rowWarnBg: "rgba(233,58,59,0.08)",
       optionHoverBg: "rgba(86,201,254,0.12)"
     };
+	*/
+
 
     const focusRing = { outline: `2px solid ${COLORS.focus}`, outlineOffset: "2px" };
 
@@ -520,17 +635,21 @@
               BeAKampaign v2
             </div>
 			
+			
+			
 			<div style={{ marginLeft: "auto", display: "flex", gap: "16px",lineHeight: "1",alignItems: "center",fontWeight: 600, }}>			
-				 <span style={{ fontSize: "13px", color: "#6b7280" }}>Theme:    </span>
-				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="System" onClick={() => setTheme("system")}>System</button>
-				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="Light" onClick={() => setTheme("light")}>Light</button>
-				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="Dark" onClick={() => setTheme("dark")}>Dark</button>				
-				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="Matrix" onClick={() => setTheme("matrix")}>Matrix</button>
-				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="Tuesday.com" onClick={() => setTheme("tuesday")}>Tuesday.com</button>
-				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="8Bit Classic" onClick={() => setTheme("8bit")}>8Bit Classic</button>
-				
-
+				 <span style={{ fontSize: "13px", color: "#6b7280" }}>Theme:    </span>	 
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="system" onClick={() => setTheme("system")}>System</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="light" onClick={() => setTheme("light")}>Light</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="dark" onClick={() => setTheme("dark")}>Dark</button>				
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="matrix" onClick={() => setTheme("matrix")}>Matrix</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="tuesday.com" onClick={() => setTheme("tuesday")}>Tuesday.com</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="ebit" onClick={() => setTheme("ebit")}>8Bit Classic</button>
 			</div>
+			
+			
+			
+			
 			
           </div>
         </div>
@@ -2920,6 +3039,69 @@
     /* ------------------------------- Mount App ------------------------------- */
     const root = ReactDOM.createRoot(document.getElementById("root"));
     root.render(<BeAKampaignApp />);
+  
+  
+  
+  
+  
+  
   </script>
+  
+  
+<!-- <script src="script.js"></script> -->
+
+<script>
+
+	function setTheme(themeName) {
+	if (THEMES[themeName]) {
+		COLORS = THEMES[themeName];   // 🔥 re-map COLORS
+		localStorage.setItem("theme", themeName);
+		renderUI(); // optional: trigger re-render if needed
+		location.reload()
+	}
+	}
+
+/*
+function setTheme(themeName) {
+    if (THEMES[themeName]) {
+        // 1. 🔥 Update the JavaScript reference to the new theme colors
+        const newColors = THEMES[themeName];
+        COLORS = newColors; 
+        
+        // 2. ✨ DOM UPDATE (Crucial Step for CSS Variables)
+        const body = document.body;
+        for (const token in newColors) {
+            if (newColors.hasOwnProperty(token)) {
+                // Set the CSS variable on the body for instant color refresh
+                body.style.setProperty(`--color-${token}`, newColors[token]);
+            }
+        }
+        
+        // 3. Save the preference
+        localStorage.setItem("theme", themeName);
+        
+  
+        // This ensures the render function runs after the global colors are updated.
+        if (typeof renderUI === 'function') {
+            renderUI(); 
+        } else {
+            // Optional: Log an error if renderUI isn't defined
+            console.warn("renderUI() function is not defined.");
+        }
+    } else {
+        console.error(`Theme "${themeName}" not found in THEMES object.`);
+    }
+}
+*/
+	
+	// Restore saved theme
+	window.addEventListener("DOMContentLoaded", () => {
+	const saved = localStorage.getItem("theme") || "light";
+	setTheme(saved);
+	});
+		
+	
+ </script>
+ 
 </body>
 </html>
