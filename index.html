@@ -522,13 +522,14 @@
 			
 			<div style={{ marginLeft: "auto", display: "flex", gap: "16px",lineHeight: "1",alignItems: "center",fontWeight: 600, }}>			
 				 <span style={{ fontSize: "13px", color: "#6b7280" }}>Theme:    </span>
-				<button style={{ ...btnGhost, padding: "6px 10px" }}>Light</button>
-				<button style={{ ...btnGhost, padding: "6px 10px" }}>Dark</button>
-				<button style={{ ...btnGhost, padding: "6px 10px" }}>System</button>				
-				<button style={{ ...btnGhost, padding: "6px 10px" }}>Matrix</button>
-				<button style={{ ...btnGhost, padding: "6px 10px" }}>8 Bit Classic</button>
-				<button style={{ ...btnGhost, padding: "6px 10px" }}>Tuesday.com</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="System" onClick={() => setTheme("system")}>System</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="Light" onClick={() => setTheme("light")}>Light</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="Dark" onClick={() => setTheme("dark")}>Dark</button>				
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="Matrix" onClick={() => setTheme("matrix")}>Matrix</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="Tuesday.com" onClick={() => setTheme("tuesday")}>Tuesday.com</button>
+				<button style={{ ...btnGhost, padding: "6px 10px" }} data-theme="8Bit Classic" onClick={() => setTheme("8bit")}>8Bit Classic</button>
 				
+
 			</div>
 			
           </div>
